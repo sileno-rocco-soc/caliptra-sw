@@ -1,0 +1,32 @@
+
+name: Build FPGA SD image
+
+on:
+  push:
+    branches: ["test-gh-variables"]
+  workflow_dispatch:
+
+jobs:
+  build_kernel:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_VARIANT: "core"
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Build SD images
+        run: |
+          # Build Dev image
+          cd ci-tools/fpga-image
+          sudo PATH="$PATH:/tmp/cross/bin"  \
+              BUILD_DEV_IMAGE=false  \
+              IMAGE_VARIANT="${IMAGE_VARIANT}"  \
+              GITHUB_WORKFLOW="${{ github.workflow }}"  \
+              GITHUB_HEAD_REF="${{ github.head_ref }}"  \
+              GITHUB_WORKFLOW_SHA="${{ github.workflow_sha }}"  \
+              KERNEL_ARCHIVE="/tmp/vck190-kernel/vck190-kernel-${IMAGE_VARIANT}.tar.gz"  \
+              KERNEL_MODULE_ARCHIVE="/tmp/vck190-kmod/io-module-${IMAGE_VARIANT}.ko"  \
+              bash test-build.sh
+
+
